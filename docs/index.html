@@ -9,40 +9,146 @@
     :root {
         --gold: #FFD700;
         --gold-dark: #B8860B;
+        --gold-dim: rgba(255,215,0,0.15);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
+    html, body {
+        width: 100%; height: 100%;
         background: #000;
-        color: #fff;
+        overflow: hidden;
+    }
+
+    /* ════════════════════════════
+       LOADER
+    ════════════════════════════ */
+    #loader {
+        position: fixed;
+        inset: 0;
+        background: #000;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 100vh;
-        font-family: 'Cinzel', serif;
-        overflow: hidden;
-        position: relative;
+        z-index: 999;
+        animation: loaderOut 0.9s cubic-bezier(0.7,0,0.3,1) forwards 3.4s;
+    }
+    @keyframes loaderOut {
+        0%   { clip-path: inset(0 0 0 0); opacity: 1; }
+        100% { clip-path: inset(0 0 100% 0); opacity: 0; pointer-events: none; }
     }
 
-    /* Grain overlay */
-    body::before {
+    .loader-logo {
+        width: 110px;
+        height: 110px;
+        object-fit: contain;
+        opacity: 0;
+        animation: loaderLogoIn 0.8s ease forwards 0.2s;
+        filter: drop-shadow(0 0 18px rgba(255,215,0,0.5));
+    }
+    @keyframes loaderLogoIn {
+        0%   { opacity: 0; transform: scale(0.6); filter: blur(12px) drop-shadow(0 0 0 transparent); }
+        100% { opacity: 1; transform: scale(1);   filter: blur(0)    drop-shadow(0 0 18px rgba(255,215,0,0.5)); }
+    }
+
+    .loader-title {
+        font-family: 'Cinzel', serif;
+        font-size: clamp(1.6rem, 6vw, 2.4rem);
+        font-weight: 900;
+        letter-spacing: 18px;
+        text-transform: uppercase;
+        margin-top: 22px;
+        background: linear-gradient(90deg, #b8860b, #ffd700, #ffe55c, #ffd700, #b8860b);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        opacity: 0;
+        animation:
+            loaderTitleIn 0.9s ease forwards 0.7s,
+            shimmer 3s linear infinite 1.5s;
+    }
+    @keyframes loaderTitleIn {
+        0%   { opacity: 0; letter-spacing: 36px; }
+        100% { opacity: 1; letter-spacing: 18px; }
+    }
+
+    /* Progress bar */
+    .loader-bar-wrap {
+        margin-top: 28px;
+        width: clamp(160px, 40vw, 260px);
+        height: 1px;
+        background: rgba(255,215,0,0.15);
+        position: relative;
+        opacity: 0;
+        animation: fadeIn 0.5s ease forwards 1.2s;
+    }
+    .loader-bar {
+        position: absolute;
+        left: 0; top: 0;
+        height: 100%;
+        background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-dark));
+        width: 0%;
+        animation: loadProgress 2s cubic-bezier(0.4,0,0.2,1) forwards 1.3s;
+        box-shadow: 0 0 8px var(--gold);
+    }
+    @keyframes loadProgress { to { width: 100%; } }
+    .loader-bar::after {
+        content: '';
+        position: absolute;
+        right: 0; top: -3px;
+        width: 6px; height: 6px;
+        background: var(--gold);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--gold);
+    }
+
+    .loader-pct {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 0.65rem;
+        letter-spacing: 4px;
+        color: rgba(255,215,0,0.5);
+        margin-top: 10px;
+        opacity: 0;
+        animation: fadeIn 0.5s ease forwards 1.3s;
+    }
+
+    /* ════════════════════════════
+       MAIN PAGE
+    ════════════════════════════ */
+    #main {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        animation: mainIn 1s ease forwards 4.1s;
+        font-family: 'Cinzel', serif;
+    }
+    @keyframes mainIn {
+        0%   { opacity: 0; }
+        100% { opacity: 1; }
+    }
+
+    /* Grain */
+    #main::before {
         content: '';
         position: fixed;
         inset: 0;
         background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
         background-size: 200px;
-        opacity: 0.4;
+        opacity: 0.38;
         pointer-events: none;
         z-index: 0;
     }
-
     /* Ambient */
-    body::after {
+    #main::after {
         content: '';
         position: fixed;
         inset: 0;
-        background: radial-gradient(ellipse 65% 50% at 50% 50%, rgba(255,180,0,0.08) 0%, transparent 70%);
+        background: radial-gradient(ellipse 65% 55% at 50% 50%, rgba(255,170,0,0.09) 0%, transparent 68%);
         pointer-events: none;
         z-index: 0;
     }
@@ -62,30 +168,34 @@
     }
     @keyframes floatUp {
         0%   { opacity: 0; transform: translateY(105vh); }
-        10%  { opacity: 0.9; }
-        90%  { opacity: 0.3; }
+        10%  { opacity: 0.85; }
+        90%  { opacity: 0.25; }
         100% { opacity: 0; transform: translateY(-10vh); }
     }
 
     /* Corners */
-    .corner { position: fixed; width: 70px; height: 70px; z-index: 2; opacity: 0; animation: fadeIn 1.5s ease forwards 2.2s; }
-    .corner svg { width: 100%; height: 100%; }
-    .tl { top: 20px; left: 20px; }
-    .tr { top: 20px; right: 20px; transform: scaleX(-1); }
-    .bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
-    .br { bottom: 20px; right: 20px; transform: scale(-1,-1); }
+    .corner { position: fixed; z-index: 2; opacity: 0; animation: fadeIn 1.2s ease forwards 4.8s; }
+    .corner svg { display: block; }
+    .tl { top: 18px; left: 18px; width: 68px; height: 68px; }
+    .tr { top: 18px; right: 18px; width: 68px; height: 68px; transform: scaleX(-1); }
+    .bl { bottom: 18px; left: 18px; width: 68px; height: 68px; transform: scaleY(-1); }
+    .br { bottom: 18px; right: 18px; width: 68px; height: 68px; transform: scale(-1,-1); }
 
-    .line-top, .line-bottom {
-        position: fixed; left: 90px; right: 90px; height: 1px;
+    .hline {
+        position: fixed; left: 88px; right: 88px; height: 1px;
         background: linear-gradient(90deg, transparent, var(--gold-dark), var(--gold), var(--gold-dark), transparent);
-        z-index: 2; opacity: 0; animation: fadeIn 1.5s ease forwards 2.4s;
+        z-index: 2; opacity: 0; animation: fadeIn 1.2s ease forwards 5s;
     }
-    .line-top { top: 20px; }
-    .line-bottom { bottom: 20px; }
+    .hline.top { top: 18px; }
+    .hline.bot { bottom: 18px; }
 
     @keyframes fadeIn { to { opacity: 1; } }
+    @keyframes shimmer {
+        0%   { background-position: 0% center; }
+        100% { background-position: 200% center; }
+    }
 
-    /* Main */
+    /* Container */
     .container {
         position: relative;
         z-index: 10;
@@ -95,37 +205,30 @@
         padding: 20px;
     }
 
-    /* Logo — no border, glow only */
+    /* Logo — clean, NO border, NO ring */
     .logo-wrap {
         position: relative;
-        margin-bottom: 38px;
+        margin-bottom: 36px;
         opacity: 0;
-        animation: revealLogo 1.2s cubic-bezier(0.22,1,0.36,1) forwards 0.3s;
+        animation: revealLogo 1s cubic-bezier(0.22,1,0.36,1) forwards 4.4s;
     }
     @keyframes revealLogo {
-        0%   { opacity: 0; transform: scale(0.75) translateY(18px); filter: blur(14px); }
-        100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        0%   { opacity: 0; transform: scale(0.8) translateY(16px); filter: blur(12px); }
+        100% { opacity: 1; transform: scale(1) translateY(0);      filter: blur(0); }
     }
     .logo {
-        width: 160px;
-        height: 160px;
-        object-fit: cover;
-        border-radius: 50%;
+        width: 155px;
+        height: 155px;
+        object-fit: contain;
         display: block;
         position: relative;
         z-index: 2;
+        filter: drop-shadow(0 0 22px rgba(255,215,0,0.28));
+        animation: logoGlow 3.5s ease-in-out infinite alternate 5s;
     }
-    .logo-glow {
-        position: absolute;
-        inset: -6px;
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 1;
-        animation: pulseGlow 3s ease-in-out infinite alternate;
-    }
-    @keyframes pulseGlow {
-        0%   { box-shadow: 0 0 20px rgba(255,215,0,0.2), 0 0 50px rgba(255,140,0,0.1); }
-        100% { box-shadow: 0 0 45px rgba(255,215,0,0.45), 0 0 90px rgba(255,140,0,0.2); }
+    @keyframes logoGlow {
+        0%   { filter: drop-shadow(0 0 16px rgba(255,215,0,0.2)); }
+        100% { filter: drop-shadow(0 0 38px rgba(255,200,0,0.55)); }
     }
 
     /* Title */
@@ -145,16 +248,12 @@
         background-clip: text;
         opacity: 0;
         animation:
-            revealTitle 1.4s cubic-bezier(0.22,1,0.36,1) forwards 0.6s,
-            shimmer 4s linear infinite 2s;
+            revealTitle 1.3s cubic-bezier(0.22,1,0.36,1) forwards 4.6s,
+            shimmer 4s linear infinite 6s;
     }
     @keyframes revealTitle {
-        0%   { opacity: 0; letter-spacing: 28px; filter: blur(10px); }
+        0%   { opacity: 0; letter-spacing: 30px; filter: blur(10px); }
         100% { opacity: 1; letter-spacing: clamp(6px,2vw,16px); filter: blur(0); }
-    }
-    @keyframes shimmer {
-        0%   { background-position: 0% center; }
-        100% { background-position: 200% center; }
     }
 
     /* Divider */
@@ -165,111 +264,127 @@
         margin: 18px 0 22px;
         width: min(320px, 80vw);
         opacity: 0;
-        animation: fadeIn 1s ease forwards 1.4s;
+        animation: fadeIn 1s ease forwards 5.2s;
     }
-    .divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dark)); }
-    .divider-line.right { background: linear-gradient(90deg, var(--gold-dark), transparent); }
-    .divider-diamond { color: var(--gold); font-size: 9px; letter-spacing: 5px; animation: rotateDiamond 7s linear infinite; display: inline-block; }
-    @keyframes rotateDiamond { to { transform: rotate(360deg); } }
+    .dl  { flex:1; height:1px; background: linear-gradient(90deg, transparent, var(--gold-dark)); }
+    .dr  { flex:1; height:1px; background: linear-gradient(90deg, var(--gold-dark), transparent); }
+    .dd  { color: var(--gold); font-size: 9px; letter-spacing: 5px; display: inline-block; animation: spin 8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Date */
     .date-wrapper {
-        height: 36px;
+        height: 38px;
         display: flex;
         align-items: center;
         opacity: 0;
-        animation: fadeIn 1s ease forwards 1.6s;
+        animation: fadeIn 1s ease forwards 5.4s;
     }
     .date-text {
         font-family: 'Cormorant Garamond', serif;
         font-size: clamp(1.2rem, 4vw, 1.6rem);
         font-weight: 300;
-        color: rgba(255,255,255,0.8);
+        color: rgba(255,255,255,0.82);
         letter-spacing: 5px;
         font-style: italic;
     }
     .cursor {
-        font-size: 1.7rem;
+        font-size: 1.8rem;
         color: var(--gold);
-        margin-left: 4px;
+        margin-left: 3px;
         animation: blink 0.65s step-end infinite;
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
     /* Mobile */
     @media (max-width: 480px) {
-        .corner { width: 48px; height: 48px; }
-        .tl { top: 14px; left: 14px; }
-        .tr { top: 14px; right: 14px; }
-        .bl { bottom: 14px; left: 14px; }
-        .br { bottom: 14px; right: 14px; }
-        .line-top, .line-bottom { left: 62px; right: 62px; }
-        .line-top  { top: 14px; }
-        .line-bottom { bottom: 14px; }
-        .logo { width: 120px; height: 120px; }
-        .logo-wrap { margin-bottom: 26px; }
+        .tl,.tr,.bl,.br { width: 48px; height: 48px; }
+        .tl { top: 13px; left: 13px; }
+        .tr { top: 13px; right: 13px; }
+        .bl { bottom: 13px; left: 13px; }
+        .br { bottom: 13px; right: 13px; }
+        .hline { left: 61px; right: 61px; }
+        .hline.top { top: 13px; }
+        .hline.bot { bottom: 13px; }
+        .logo { width: 115px; height: 115px; }
+        .logo-wrap { margin-bottom: 24px; }
+        .loader-logo { width: 80px; height: 80px; }
     }
 </style>
 </head>
 <body>
 
-<div class="particles" id="particles"></div>
-
-<div class="corner tl"><svg viewBox="0 0 70 70" fill="none"><path d="M2 68L2 2L68 2" stroke="#B8860B" stroke-width="1"/><path d="M2 42L2 2L42 2" stroke="#FFD700" stroke-width="0.5" opacity="0.5"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
-<div class="corner tr"><svg viewBox="0 0 70 70" fill="none"><path d="M2 68L2 2L68 2" stroke="#B8860B" stroke-width="1"/><path d="M2 42L2 2L42 2" stroke="#FFD700" stroke-width="0.5" opacity="0.5"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
-<div class="corner bl"><svg viewBox="0 0 70 70" fill="none"><path d="M2 68L2 2L68 2" stroke="#B8860B" stroke-width="1"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
-<div class="corner br"><svg viewBox="0 0 70 70" fill="none"><path d="M2 68L2 2L68 2" stroke="#B8860B" stroke-width="1"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
-
-<div class="line-top"></div>
-<div class="line-bottom"></div>
-
-<div class="container">
-    <div class="logo-wrap">
-        <img src="wintage.png" alt="WINTAGE" class="logo">
-        <div class="logo-glow"></div>
+<!-- ══ LOADER ══ -->
+<div id="loader">
+    <img src="wintage.png" alt="WINTAGE" class="loader-logo">
+    <div class="loader-title">WINTAGE</div>
+    <div class="loader-bar-wrap">
+        <div class="loader-bar"></div>
     </div>
+    <div class="loader-pct" id="pct">0%</div>
+</div>
 
-    <h1 class="title">WINTAGE</h1>
+<!-- ══ MAIN ══ -->
+<div id="main">
+    <div class="particles" id="particles"></div>
 
-    <div class="divider">
-        <div class="divider-line"></div>
-        <span class="divider-diamond">◆ ◆ ◆</span>
-        <div class="divider-line right"></div>
-    </div>
+    <div class="corner tl"><svg viewBox="0 0 68 68" fill="none"><path d="M2 66L2 2L66 2" stroke="#B8860B" stroke-width="1"/><path d="M2 40L2 2L40 2" stroke="#FFD700" stroke-width="0.5" opacity="0.45"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
+    <div class="corner tr"><svg viewBox="0 0 68 68" fill="none"><path d="M2 66L2 2L66 2" stroke="#B8860B" stroke-width="1"/><path d="M2 40L2 2L40 2" stroke="#FFD700" stroke-width="0.5" opacity="0.45"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
+    <div class="corner bl"><svg viewBox="0 0 68 68" fill="none"><path d="M2 66L2 2L66 2" stroke="#B8860B" stroke-width="1"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
+    <div class="corner br"><svg viewBox="0 0 68 68" fill="none"><path d="M2 66L2 2L66 2" stroke="#B8860B" stroke-width="1"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
 
-    <div class="date-wrapper">
-        <span class="date-text" id="typewriter"></span><span class="cursor">|</span>
+    <div class="hline top"></div>
+    <div class="hline bot"></div>
+
+    <div class="container">
+        <div class="logo-wrap">
+            <img src="wintage.png" alt="WINTAGE" class="logo">
+        </div>
+
+        <h1 class="title">WINTAGE</h1>
+
+        <div class="divider">
+            <div class="dl"></div>
+            <span class="dd">◆ ◆ ◆</span>
+            <div class="dr"></div>
+        </div>
+
+        <div class="date-wrapper">
+            <span class="date-text" id="typewriter"></span><span class="cursor">|</span>
+        </div>
     </div>
 </div>
 
 <script>
-    /* Particles */
+    /* ── Loading % counter ── */
+    const pctEl = document.getElementById('pct');
+    let n = 0;
+    const iv = setInterval(() => {
+        n = Math.min(n + Math.ceil(Math.random() * 7 + 1), 100);
+        pctEl.textContent = n + '%';
+        if (n >= 100) clearInterval(iv);
+    }, 55);
+
+    /* ── Particles ── */
     const pc = document.getElementById('particles');
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 32; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
-        p.style.cssText = `--dur:${(7+Math.random()*12).toFixed(1)}s;--delay:${(Math.random()*16).toFixed(1)}s;--x:${(Math.random()*100).toFixed(1)}%;--sz:${(1+Math.random()*2.5).toFixed(1)}px;`;
+        p.style.cssText = `--dur:${(7+Math.random()*13).toFixed(1)}s;--delay:${(Math.random()*18).toFixed(1)}s;--x:${(Math.random()*100).toFixed(1)}%;--sz:${(1+Math.random()*2.8).toFixed(1)}px;`;
         pc.appendChild(p);
     }
 
-    /* Typewriter — only "10 Haziran..." */
+    /* ── Typewriter ── */
     const text = "10 Haziran...";
     let charIdx = 0, deleting = false;
     const target = document.getElementById("typewriter");
-
     function type() {
         target.innerText = text.substring(0, charIdx);
-        if (!deleting && charIdx < text.length) {
-            charIdx++; setTimeout(type, 130);
-        } else if (deleting && charIdx > 0) {
-            charIdx--; setTimeout(type, 80);
-        } else if (!deleting) {
-            deleting = true; setTimeout(type, 2800);
-        } else {
-            deleting = false; setTimeout(type, 600);
-        }
+        if (!deleting && charIdx < text.length)      { charIdx++; setTimeout(type, 130); }
+        else if (deleting && charIdx > 0)             { charIdx--; setTimeout(type, 80); }
+        else if (!deleting)                           { deleting = true; setTimeout(type, 2800); }
+        else                                          { deleting = false; setTimeout(type, 600); }
     }
-    window.onload = () => setTimeout(type, 1800);
+    setTimeout(type, 6000);
 </script>
 </body>
 </html>
