@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WINTAGE</title>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        background-color: #000000;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        overflow: hidden;
+    }
+    
+    .logo-container {
+        margin-bottom: 20px;
+    }
+
+    .logo {
+        width: 180px;
+        height: 180px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #FFD700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+
+    .title {
+        font-size: 5rem;
+        font-weight: 900;
+        color: #FFD700;
+        letter-spacing: 8px;
+        text-transform: uppercase;
+        margin: 0;
+        text-align: center;
+        animation: pulseGlow 2s infinite alternate;
+        user-select: none;
+    }
+
+    @keyframes pulseGlow {
+        0% {
+            text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700;
+            transform: scale(1);
+        }
+        100% {
+            text-shadow: 0 0 30px #FFA500, 0 0 60px #FFA500;
+            transform: scale(1.05);
+        }
+    }
+
+    .date-wrapper {
+        margin-top: 30px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+    }
+
+    .date-text {
+        font-size: 2rem;
+        color: #ffffff;
+        font-family: 'Courier New', Courier, monospace;
+        font-weight: bold;
+        letter-spacing: 3px;
+        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+
+    .cursor {
+        font-size: 2.2rem;
+        color: #FFD700;
+        margin-left: 8px;
+        font-weight: bold;
+        animation: blink 0.6s infinite;
+    }
+
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
+</style>
+</head>
+<body>
+
+    <div class="logo-container">
+        <img src="wintagepp.jpeg" alt="WINTAGE" class="logo">
+    </div>
+
+    <h1 class="title">WINTAGE</h1>
+
+    <div class="date-wrapper">
+        <span class="date-text" id="typewriter"></span><span class="cursor">_</span>
+    </div>
+
+<script>
+    const textContent = "20 Nisan...";
+    const typeSpeed = 150;
+    const eraseSpeed = 100;
+    const waitTime = 2000;
+    
+    let charIdx = 0;
+    let deleting = false;
+    const target = document.getElementById("typewriter");
+
+    function type() {
+        const currentText = textContent.substring(0, charIdx);
+        target.innerText = currentText;
+
+        if (!deleting && charIdx < textContent.length) {
+            charIdx++;
+            setTimeout(type, typeSpeed);
+        } else if (deleting && charIdx > 0) {
+            charIdx--;
+            setTimeout(type, eraseSpeed);
+        } else {
+            deleting = !deleting;
+            setTimeout(type, deleting ? waitTime : 500);
+        }
+    }
+
+    window.onload = () => {
+        setTimeout(type, 1000);
+    };
+</script>
+</body>
+</html>
