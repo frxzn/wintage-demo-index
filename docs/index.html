@@ -4,132 +4,272 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WINTAGE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;900&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+    :root {
+        --gold: #FFD700;
+        --gold-dark: #B8860B;
     }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-        background-color: #000000;
-        color: #ffffff;
+        background: #000;
+        color: #fff;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100vh;
-        font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        min-height: 100vh;
+        font-family: 'Cinzel', serif;
         overflow: hidden;
-    }
-    
-    .logo-container {
-        margin-bottom: 20px;
+        position: relative;
     }
 
+    /* Grain overlay */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        background-size: 200px;
+        opacity: 0.4;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Ambient */
+    body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: radial-gradient(ellipse 65% 50% at 50% 50%, rgba(255,180,0,0.08) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Particles */
+    .particles { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .particle {
+        position: absolute;
+        border-radius: 50%;
+        background: var(--gold);
+        opacity: 0;
+        animation: floatUp var(--dur) ease-in infinite var(--delay);
+        left: var(--x);
+        width: var(--sz);
+        height: var(--sz);
+        box-shadow: 0 0 4px var(--gold);
+    }
+    @keyframes floatUp {
+        0%   { opacity: 0; transform: translateY(105vh); }
+        10%  { opacity: 0.9; }
+        90%  { opacity: 0.3; }
+        100% { opacity: 0; transform: translateY(-10vh); }
+    }
+
+    /* Corners */
+    .corner { position: fixed; width: 70px; height: 70px; z-index: 2; opacity: 0; animation: fadeIn 1.5s ease forwards 2.2s; }
+    .corner svg { width: 100%; height: 100%; }
+    .tl { top: 20px; left: 20px; }
+    .tr { top: 20px; right: 20px; transform: scaleX(-1); }
+    .bl { bottom: 20px; left: 20px; transform: scaleY(-1); }
+    .br { bottom: 20px; right: 20px; transform: scale(-1,-1); }
+
+    .line-top, .line-bottom {
+        position: fixed; left: 90px; right: 90px; height: 1px;
+        background: linear-gradient(90deg, transparent, var(--gold-dark), var(--gold), var(--gold-dark), transparent);
+        z-index: 2; opacity: 0; animation: fadeIn 1.5s ease forwards 2.4s;
+    }
+    .line-top { top: 20px; }
+    .line-bottom { bottom: 20px; }
+
+    @keyframes fadeIn { to { opacity: 1; } }
+
+    /* Main */
+    .container {
+        position: relative;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+
+    /* Logo — no border, glow only */
+    .logo-wrap {
+        position: relative;
+        margin-bottom: 38px;
+        opacity: 0;
+        animation: revealLogo 1.2s cubic-bezier(0.22,1,0.36,1) forwards 0.3s;
+    }
+    @keyframes revealLogo {
+        0%   { opacity: 0; transform: scale(0.75) translateY(18px); filter: blur(14px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+    }
     .logo {
-        width: 180px;
-        height: 180px;
+        width: 160px;
+        height: 160px;
         object-fit: cover;
         border-radius: 50%;
-        border: 3px solid #FFD700;
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        display: block;
+        position: relative;
+        z-index: 2;
+    }
+    .logo-glow {
+        position: absolute;
+        inset: -6px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1;
+        animation: pulseGlow 3s ease-in-out infinite alternate;
+    }
+    @keyframes pulseGlow {
+        0%   { box-shadow: 0 0 20px rgba(255,215,0,0.2), 0 0 50px rgba(255,140,0,0.1); }
+        100% { box-shadow: 0 0 45px rgba(255,215,0,0.45), 0 0 90px rgba(255,140,0,0.2); }
     }
 
+    /* Title */
     .title {
-        font-size: 5rem;
+        font-family: 'Cinzel', serif;
+        font-size: clamp(3rem, 12vw, 7rem);
         font-weight: 900;
-        color: #FFD700;
-        letter-spacing: 8px;
+        letter-spacing: clamp(6px, 2vw, 16px);
         text-transform: uppercase;
         margin: 0;
         text-align: center;
-        animation: pulseGlow 2s infinite alternate;
         user-select: none;
+        background: linear-gradient(160deg, #b8860b 0%, #ffd700 30%, #ffe55c 50%, #ffd700 70%, #b8860b 100%);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        opacity: 0;
+        animation:
+            revealTitle 1.4s cubic-bezier(0.22,1,0.36,1) forwards 0.6s,
+            shimmer 4s linear infinite 2s;
+    }
+    @keyframes revealTitle {
+        0%   { opacity: 0; letter-spacing: 28px; filter: blur(10px); }
+        100% { opacity: 1; letter-spacing: clamp(6px,2vw,16px); filter: blur(0); }
+    }
+    @keyframes shimmer {
+        0%   { background-position: 0% center; }
+        100% { background-position: 200% center; }
     }
 
-    @keyframes pulseGlow {
-        0% {
-            text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700;
-            transform: scale(1);
-        }
-        100% {
-            text-shadow: 0 0 30px #FFA500, 0 0 60px #FFA500;
-            transform: scale(1.05);
-        }
-    }
-
-    .date-wrapper {
-        margin-top: 30px;
-        height: 40px;
+    /* Divider */
+    .divider {
         display: flex;
         align-items: center;
+        gap: 12px;
+        margin: 18px 0 22px;
+        width: min(320px, 80vw);
+        opacity: 0;
+        animation: fadeIn 1s ease forwards 1.4s;
     }
+    .divider-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-dark)); }
+    .divider-line.right { background: linear-gradient(90deg, var(--gold-dark), transparent); }
+    .divider-diamond { color: var(--gold); font-size: 9px; letter-spacing: 5px; animation: rotateDiamond 7s linear infinite; display: inline-block; }
+    @keyframes rotateDiamond { to { transform: rotate(360deg); } }
 
+    /* Date */
+    .date-wrapper {
+        height: 36px;
+        display: flex;
+        align-items: center;
+        opacity: 0;
+        animation: fadeIn 1s ease forwards 1.6s;
+    }
     .date-text {
-        font-size: 2rem;
-        color: #ffffff;
-        font-family: 'Courier New', Courier, monospace;
-        font-weight: bold;
-        letter-spacing: 3px;
-        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(1.2rem, 4vw, 1.6rem);
+        font-weight: 300;
+        color: rgba(255,255,255,0.8);
+        letter-spacing: 5px;
+        font-style: italic;
     }
-
     .cursor {
-        font-size: 2.2rem;
-        color: #FFD700;
-        margin-left: 8px;
-        font-weight: bold;
-        animation: blink 0.6s infinite;
+        font-size: 1.7rem;
+        color: var(--gold);
+        margin-left: 4px;
+        animation: blink 0.65s step-end infinite;
     }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-    @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0; }
+    /* Mobile */
+    @media (max-width: 480px) {
+        .corner { width: 48px; height: 48px; }
+        .tl { top: 14px; left: 14px; }
+        .tr { top: 14px; right: 14px; }
+        .bl { bottom: 14px; left: 14px; }
+        .br { bottom: 14px; right: 14px; }
+        .line-top, .line-bottom { left: 62px; right: 62px; }
+        .line-top  { top: 14px; }
+        .line-bottom { bottom: 14px; }
+        .logo { width: 120px; height: 120px; }
+        .logo-wrap { margin-bottom: 26px; }
     }
 </style>
 </head>
 <body>
 
-    <div class="logo-container">
-        <img src="wintagepp.jpeg" alt="WINTAGE" class="logo">
+<div class="particles" id="particles"></div>
+
+<div class="corner tl"><svg viewBox="0 0 70 70" fill="none"><path d="M2 68L2 2L68 2" stroke="#B8860B" stroke-width="1"/><path d="M2 42L2 2L42 2" stroke="#FFD700" stroke-width="0.5" opacity="0.5"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
+<div class="corner tr"><svg viewBox="0 0 70 70" fill="none"><path d="M2 68L2 2L68 2" stroke="#B8860B" stroke-width="1"/><path d="M2 42L2 2L42 2" stroke="#FFD700" stroke-width="0.5" opacity="0.5"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
+<div class="corner bl"><svg viewBox="0 0 70 70" fill="none"><path d="M2 68L2 2L68 2" stroke="#B8860B" stroke-width="1"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
+<div class="corner br"><svg viewBox="0 0 70 70" fill="none"><path d="M2 68L2 2L68 2" stroke="#B8860B" stroke-width="1"/><circle cx="2" cy="2" r="2.5" fill="#FFD700"/></svg></div>
+
+<div class="line-top"></div>
+<div class="line-bottom"></div>
+
+<div class="container">
+    <div class="logo-wrap">
+        <img src="wintage.png" alt="WINTAGE" class="logo">
+        <div class="logo-glow"></div>
     </div>
 
     <h1 class="title">WINTAGE</h1>
 
-    <div class="date-wrapper">
-        <span class="date-text" id="typewriter"></span><span class="cursor">_</span>
+    <div class="divider">
+        <div class="divider-line"></div>
+        <span class="divider-diamond">◆ ◆ ◆</span>
+        <div class="divider-line right"></div>
     </div>
 
+    <div class="date-wrapper">
+        <span class="date-text" id="typewriter"></span><span class="cursor">|</span>
+    </div>
+</div>
+
 <script>
-    const textContent = "20 Nisan...";
-    const typeSpeed = 150;
-    const eraseSpeed = 100;
-    const waitTime = 2000;
-    
-    let charIdx = 0;
-    let deleting = false;
+    /* Particles */
+    const pc = document.getElementById('particles');
+    for (let i = 0; i < 30; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.cssText = `--dur:${(7+Math.random()*12).toFixed(1)}s;--delay:${(Math.random()*16).toFixed(1)}s;--x:${(Math.random()*100).toFixed(1)}%;--sz:${(1+Math.random()*2.5).toFixed(1)}px;`;
+        pc.appendChild(p);
+    }
+
+    /* Typewriter — only "10 Haziran..." */
+    const text = "10 Haziran...";
+    let charIdx = 0, deleting = false;
     const target = document.getElementById("typewriter");
 
     function type() {
-        const currentText = textContent.substring(0, charIdx);
-        target.innerText = currentText;
-
-        if (!deleting && charIdx < textContent.length) {
-            charIdx++;
-            setTimeout(type, typeSpeed);
+        target.innerText = text.substring(0, charIdx);
+        if (!deleting && charIdx < text.length) {
+            charIdx++; setTimeout(type, 130);
         } else if (deleting && charIdx > 0) {
-            charIdx--;
-            setTimeout(type, eraseSpeed);
+            charIdx--; setTimeout(type, 80);
+        } else if (!deleting) {
+            deleting = true; setTimeout(type, 2800);
         } else {
-            deleting = !deleting;
-            setTimeout(type, deleting ? waitTime : 500);
+            deleting = false; setTimeout(type, 600);
         }
     }
-
-    window.onload = () => {
-        setTimeout(type, 1000);
-    };
+    window.onload = () => setTimeout(type, 1800);
 </script>
 </body>
 </html>
